@@ -28,6 +28,12 @@ variable "forgejo_db_password" {
   sensitive   = true
 }
 
+variable "forgejo_runner_token" {
+  description = "Registration token for the Forgejo Actions runner"
+  type        = string
+  sensitive   = true
+}
+
 variable "forgejo_ssh_port" {
   description = "External port on host for Forgejo Git SSH access"
   type        = number

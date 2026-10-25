@@ -14,6 +14,14 @@ resource "docker_volume" "forgejo_config" {
   }
 }
 
+resource "docker_volume" "runner_data" {
+  name = "minime_runner_data"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 resource "docker_volume" "caddy_data" {
   name = "minime_caddy_data"
 

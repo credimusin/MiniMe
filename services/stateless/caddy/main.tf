@@ -55,6 +55,6 @@ resource "docker_container" "caddy" {
 
   networks_advanced {
     name    = var.ingress_network_name
-    aliases = ["caddy"]
+    aliases = ["caddy", "forgejo.${var.base_domain}"]
   }
 }

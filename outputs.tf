@@ -14,6 +14,7 @@ output "stateful_volumes" {
     postgres_data  = module.postgres.volume_name
     forgejo_data   = module.storage.forgejo_data_volume_name
     forgejo_config = module.storage.forgejo_config_volume_name
+    runner_data    = module.storage.runner_data_volume_name
     caddy_data     = module.storage.caddy_data_volume_name
     caddy_config   = module.storage.caddy_config_volume_name
   }

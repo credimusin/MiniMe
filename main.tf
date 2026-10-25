@@ -54,6 +54,15 @@ module "forgejo" {
   db_password = var.forgejo_db_password
 }
 
+module "runner" {
+  source = "./services/stateless/runner"
+
+  forgejo_instance_url = "http://${module.forgejo.container_name}:${module.forgejo.http_port}"
+  runner_token         = var.forgejo_runner_token
+  ingress_network_name = docker_network.ingress.name
+  data_volume_name     = module.storage.runner_data_volume_name
+}
+
 module "caddy" {
   source = "./services/stateless/caddy"
 

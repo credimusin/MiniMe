@@ -26,6 +26,24 @@ echo "==> [2/5] Checking OpenTofu HCL formatting (tofu fmt)..."
 tofu fmt -check -diff -recursive
 
 echo "==> [3/5] Initializing OpenTofu modules & providers (backend=false)..."
+REGISTRY_STATUS="$(curl -s -o /dev/null -w '%{http_code}' -m 5 https://registry.opentofu.org/.well-known/terraform.json || echo '000')"
+if [[ "$REGISTRY_STATUS" != "200" ]]; then
+  echo "    Direct access to registry.opentofu.org returned HTTP ${REGISTRY_STATUS}; using Yandex Cloud mirror..."
+  TMP_TOFURC="$(mktemp)"
+  trap 'rm -f "$TMP_TOFURC"' EXIT
+  cat > "$TMP_TOFURC" <<'EOF'
+provider_installation {
+  network_mirror {
+    url = "https://terraform-mirror.yandexcloud.net/"
+    include = ["registry.opentofu.org/*/*", "registry.terraform.io/*/*"]
+  }
+  direct {
+    exclude = ["registry.opentofu.org/*/*", "registry.terraform.io/*/*"]
+  }
+}
+EOF
+  export TF_CLI_CONFIG_FILE="$TMP_TOFURC"
+fi
 tofu init -backend=false -input=false >/dev/null
 
 echo "==> [4/5] Validating OpenTofu configuration (tofu validate)..."
