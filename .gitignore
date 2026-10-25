@@ -1,0 +1,53 @@
+# OpenTofu, Terraform & TFLint runtime
+.terraform/
+.tofu/
+.tflint.d/
+.terraformrc
+terraform.rc
+.tofurc
+tofu.rc
+crash.log
+crash.*.log
+
+# State & execution plans (contain sensitive data in plaintext)
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Secrets, variables, keys & certificates
+*.tfvars
+*.tfvars.json
+!*.example
+*.pem
+*.key
+*.pub
+*.crt
+*.cer
+*.pfx
+*.p12
+*.age
+id_rsa*
+id_ed25519*
+secrets/
+.env
+.env.*
+
+# Database dumps & backups
+*.sql
+*.sql.gz
+*.dump
+*.bak
+backups/
+
+# Local healthcheck & private operational docs
+.last_healthcheck
+.healthcheck
+AGENTS.md
+KNOWN_ISSUES.md
