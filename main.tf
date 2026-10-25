@@ -39,7 +39,7 @@ module "forgejo" {
   source = "./services/stateless/forgejo"
 
   base_domain          = var.base_domain
-  protocol             = var.tls_internal ? "http" : "https"
+  protocol             = "https"
   ssh_port             = var.forgejo_ssh_port
   ingress_network_name = docker_network.ingress.name
   backend_network_name = docker_network.backend.name

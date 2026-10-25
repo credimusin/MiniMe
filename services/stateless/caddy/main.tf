@@ -1,10 +1,6 @@
 locals {
   caddyfile_internal = <<-EOT
-    http://forgejo.${var.base_domain} {
-      reverse_proxy ${var.forgejo_upstream}
-    }
-
-    https://forgejo.${var.base_domain} {
+    forgejo.${var.base_domain} {
       tls internal
       reverse_proxy ${var.forgejo_upstream}
     }

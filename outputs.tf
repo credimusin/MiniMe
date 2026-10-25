@@ -1,6 +1,6 @@
 output "forgejo_url" {
   description = "Primary web URL for Forgejo"
-  value       = "${var.tls_internal ? "http" : "https"}://forgejo.${var.base_domain}"
+  value       = "https://forgejo.${var.base_domain}"
 }
 
 output "forgejo_ssh_clone_base" {

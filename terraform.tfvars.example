@@ -1,5 +1,8 @@
-# Copy to terraform.tfvars (or split into stateful.auto.tfvars, services.auto.tfvars, projects.auto.tfvars)
-# Generate strong passwords via: openssl rand -base64 24
+# Non-sensitive configuration (copy to terraform.tfvars)
+# Sensitive passwords are stored in `pass` (Standard Unix Password Manager):
+#   pass generate --no-symbols minime/postgres/admin 32
+#   pass generate --no-symbols minime/postgres/forgejo 32
+# Run OpenTofu via: ./scripts/tofu.sh plan | ./scripts/tofu.sh apply
 
 # ==============================================================================
 # Global / Ingress
@@ -9,17 +12,6 @@ base_domain  = "homelab.internal"
 tls_internal = true
 
 # ==============================================================================
-# 1. Services: Stateful (Root database & storage credentials)
+# Services: Stateless
 # ==============================================================================
-postgres_admin_password = "CHANGE_ME_POSTGRES_SUPERUSER_PASSWORD"
-
-# ==============================================================================
-# 2. Services: Stateless (Self-hosted infrastructure apps)
-# ==============================================================================
-forgejo_db_password = "CHANGE_ME_FORGEJO_DB_PASSWORD"
-forgejo_ssh_port    = 2222
-
-# ==============================================================================
-# 3. Projects (Custom pet-projects)
-# ==============================================================================
-# example_project_db_password = "CHANGE_ME_PROJECT_DB_PASSWORD"
+forgejo_ssh_port = 2222
