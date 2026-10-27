@@ -1,12 +1,20 @@
 resource "docker_network" "ingress" {
   name   = "minime_ingress"
   driver = "bridge"
+
+  ipam_options = {
+    driver = "host-local"
+  }
 }
 
 resource "docker_network" "backend" {
   name     = "minime_backend"
   driver   = "bridge"
   internal = true
+
+  ipam_options = {
+    driver = "host-local"
+  }
 }
 
 # ==============================================================================

@@ -57,4 +57,12 @@ resource "docker_container" "forgejo" {
     name    = var.backend_network_name
     aliases = ["forgejo"]
   }
+
+  healthcheck {
+    test         = ["CMD-SHELL", "curl -fsS http://127.0.0.1:${local.http_port}/api/healthz >/dev/null"]
+    interval     = "15s"
+    timeout      = "5s"
+    retries      = 5
+    start_period = "20s"
+  }
 }

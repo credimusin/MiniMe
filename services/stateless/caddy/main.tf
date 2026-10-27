@@ -38,6 +38,12 @@ resource "docker_container" "caddy" {
     protocol = "tcp"
   }
 
+  ports {
+    internal = 443
+    external = 443
+    protocol = "udp"
+  }
+
   volumes {
     volume_name    = var.data_volume_name
     container_path = "/data"
@@ -56,5 +62,13 @@ resource "docker_container" "caddy" {
   networks_advanced {
     name    = var.ingress_network_name
     aliases = ["caddy", "forgejo.${var.base_domain}"]
+  }
+
+  healthcheck {
+    test         = ["CMD-SHELL", "wget -qO- http://127.0.0.1:2019/config/ >/dev/null"]
+    interval     = "15s"
+    timeout      = "5s"
+    retries      = 3
+    start_period = "10s"
   }
 }
