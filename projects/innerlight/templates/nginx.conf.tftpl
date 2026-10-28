@@ -1,0 +1,52 @@
+server {
+    listen ${http_port};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    charset utf-8;
+
+    gzip on;
+    gzip_disable "msie6";
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_buffers 16 8k;
+    gzip_http_version 1.1;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+
+    location ~* \.(html|htm)$ {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+        expires -1;
+    }
+
+    location ^~ /assets/js/locales/ {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+        expires -1;
+    }
+
+    location = /assets/js/config.js {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+        expires -1;
+    }
+
+    location ~* \.(css|js|woff2|svg|png|jpg|jpeg|gif|ico|asc|sha256)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    location /apk/ {
+        types {
+            application/vnd.android.package-archive apk;
+        }
+        expires 7d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    error_page 404 /index.html;
+}

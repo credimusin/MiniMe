@@ -19,8 +19,11 @@ postgres_admin_password = "CHANGE_ME_POSTGRES_SUPERUSER_PASSWORD"
 forgejo_db_password  = "CHANGE_ME_FORGEJO_DB_PASSWORD"
 forgejo_runner_token = "CHANGE_ME_FORGEJO_RUNNER_TOKEN"
 forgejo_ssh_port     = 2222
+frp_vps_addr         = "CHANGE_ME_VPS_PUBLIC_IP"
+frp_auth_token       = "CHANGE_ME_FRP_SHARED_TOKEN"
 
 # ==============================================================================
 # 3. Projects (Custom pet-projects)
 # ==============================================================================
+# innerlight_source_dir       = "/var/home/bmo/Devs/inner-light-landing"
 # example_project_db_password = "CHANGE_ME_PROJECT_DB_PASSWORD"

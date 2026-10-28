@@ -81,10 +81,28 @@ module "caddy" {
   data_volume_name   = module.storage.caddy_data_volume_name
   config_volume_name = module.storage.caddy_config_volume_name
 
-  forgejo_upstream = "${module.forgejo.container_name}:${module.forgejo.http_port}"
+  forgejo_upstream    = "${module.forgejo.container_name}:${module.forgejo.http_port}"
+  innerlight_upstream = "${module.innerlight.container_name}:${module.innerlight.http_port}"
+}
+
+module "frpc" {
+  source = "./services/stateless/frpc"
+
+  vps_addr             = var.frp_vps_addr
+  auth_token           = var.frp_auth_token
+  ingress_network_name = docker_network.ingress.name
+  caddy_host           = module.caddy.container_name
+  forgejo_host         = module.forgejo.container_name
+  ssh_port             = var.forgejo_ssh_port
 }
 
 # ==============================================================================
 # 3. PROJECTS (Custom pet-projects consuming stateful & stateless services)
 # ==============================================================================
-# Add custom project modules from ./projects/<name> here.
+
+module "innerlight" {
+  source = "./projects/innerlight"
+
+  ingress_network_name = docker_network.ingress.name
+  source_dir           = var.innerlight_source_dir
+}

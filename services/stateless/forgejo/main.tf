@@ -30,6 +30,7 @@ resource "docker_container" "forgejo" {
     "FORGEJO__database__USER=${var.db_user}",
     "FORGEJO__database__PASSWD=${var.db_password}",
     "FORGEJO__database__SSL_MODE=disable",
+    "FORGEJO__service__DISABLE_REGISTRATION=true",
   ]
 
   ports {

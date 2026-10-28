@@ -13,7 +13,7 @@ variable "base_domain" {
 variable "tls_internal" {
   description = "Use Caddy internal PKI for local LAN before a public IP is attached"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "postgres_admin_password" {
@@ -38,4 +38,21 @@ variable "forgejo_ssh_port" {
   description = "External port on host for Forgejo Git SSH access"
   type        = number
   default     = 2222
+}
+
+variable "frp_vps_addr" {
+  description = "Public IP or hostname of the VPS running frps"
+  type        = string
+}
+
+variable "frp_auth_token" {
+  description = "Shared authentication token for the FRP tunnel"
+  type        = string
+  sensitive   = true
+}
+
+variable "innerlight_source_dir" {
+  description = "Local filesystem path to the inner-light-landing repository"
+  type        = string
+  default     = "/var/home/bmo/Devs/inner-light-landing"
 }

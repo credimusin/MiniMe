@@ -1,6 +1,16 @@
+output "minime_url" {
+  description = "Primary status / placeholder web URL for MiniMe"
+  value       = "https://minime.${var.base_domain}"
+}
+
 output "forgejo_url" {
   description = "Primary web URL for Forgejo"
   value       = "https://forgejo.${var.base_domain}"
+}
+
+output "innerlight_url" {
+  description = "Primary web URL for Inner Light landing"
+  value       = "https://innerlight.${var.base_domain}"
 }
 
 output "forgejo_ssh_clone_base" {

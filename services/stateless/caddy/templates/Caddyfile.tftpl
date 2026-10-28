@@ -1,0 +1,15 @@
+minime.${base_domain} {
+  ${tls_directive}
+  root * /srv/placeholder
+  file_server
+}
+
+forgejo.${base_domain} {
+  ${tls_directive}
+  reverse_proxy ${forgejo_upstream}
+}
+
+innerlight.${base_domain} {
+  ${tls_directive}
+  reverse_proxy ${innerlight_upstream}
+}

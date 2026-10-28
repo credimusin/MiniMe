@@ -1,18 +1,14 @@
 locals {
-  caddyfile_internal = <<-EOT
-    forgejo.${var.base_domain} {
-      tls internal
-      reverse_proxy ${var.forgejo_upstream}
-    }
-  EOT
+  tls_directive = var.tls_internal ? "tls internal" : ""
 
-  caddyfile_public = <<-EOT
-    forgejo.${var.base_domain} {
-      reverse_proxy ${var.forgejo_upstream}
-    }
-  EOT
+  placeholder_html = file("${path.module}/templates/placeholder.html")
 
-  caddyfile = var.tls_internal ? local.caddyfile_internal : local.caddyfile_public
+  caddyfile = templatefile("${path.module}/templates/Caddyfile.tftpl", {
+    base_domain         = var.base_domain
+    tls_directive       = local.tls_directive
+    forgejo_upstream    = var.forgejo_upstream
+    innerlight_upstream = var.innerlight_upstream
+  })
 }
 
 resource "docker_image" "caddy" {
@@ -59,9 +55,19 @@ resource "docker_container" "caddy" {
     content = local.caddyfile
   }
 
+  upload {
+    file    = "/srv/placeholder/index.html"
+    content = local.placeholder_html
+  }
+
   networks_advanced {
-    name    = var.ingress_network_name
-    aliases = ["caddy", "forgejo.${var.base_domain}"]
+    name = var.ingress_network_name
+    aliases = [
+      "caddy",
+      "minime.${var.base_domain}",
+      "forgejo.${var.base_domain}",
+      "innerlight.${var.base_domain}",
+    ]
   }
 
   healthcheck {

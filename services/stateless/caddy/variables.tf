@@ -34,3 +34,8 @@ variable "forgejo_upstream" {
   description = "Upstream address (host:port) for Forgejo"
   type        = string
 }
+
+variable "innerlight_upstream" {
+  description = "Upstream address (host:port) for Inner Light landing"
+  type        = string
+}
