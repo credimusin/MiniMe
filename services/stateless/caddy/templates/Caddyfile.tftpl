@@ -1,15 +1,27 @@
-minime.${base_domain} {
-  ${tls_directive}
-  root * /srv/placeholder
-  file_server
+{
+	email bmo@${base_domain}
+	log {
+		level ERROR
+	}
+}
+
+www.${base_domain} {
+	${tls_directive}
+	redir https://${base_domain}{uri} permanent
+}
+
+${base_domain} {
+	${tls_directive}
+	root * /srv/placeholder
+	file_server
 }
 
 forgejo.${base_domain} {
-  ${tls_directive}
-  reverse_proxy ${forgejo_upstream}
+	${tls_directive}
+	reverse_proxy ${forgejo_upstream}
 }
 
 innerlight.${base_domain} {
-  ${tls_directive}
-  reverse_proxy ${innerlight_upstream}
+	${tls_directive}
+	reverse_proxy ${innerlight_upstream}
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Caddy · MiniMe Ingress</title>
+  <title>Imaginal Dev</title>
   <style>
     :root { color-scheme: dark; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,60 +13,19 @@
       align-items: center;
       justify-content: center;
       background: radial-gradient(circle at 50% 30%, #18181b 0%, #09090b 100%);
-      color: #e4e4e7;
+      color: #fafafa;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       padding: 2rem;
     }
-    .card {
-      max-width: 440px;
-      width: 100%;
-      padding: 2.25rem;
-      border: 1px solid #27272a;
-      border-radius: 12px;
-      background: rgba(24, 24, 27, 0.75);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
-    }
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #a1a1aa;
-      margin-bottom: 1.25rem;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 10px #22c55e;
-      animation: pulse 2s infinite ease-in-out;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.35; }
-    }
     h1 {
-      font-size: 1.25rem;
+      font-size: clamp(1.75rem, 4vw, 3rem);
       font-weight: 600;
-      color: #fafafa;
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-    }
-    p {
-      font-size: 0.9rem;
-      color: #a1a1aa;
-      line-height: 1.6;
+      letter-spacing: 0.04em;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <main class="card">
-    <div class="status"><span class="dot"></span> caddy · online</div>
-    <h1>MiniMe Ingress</h1>
-    <p>Caddy web server and TLS proxy is running normally.</p>
-  </main>
+  <h1>Imaginal Dev</h1>
 </body>
 </html>

@@ -1,6 +1,6 @@
 output "minime_url" {
   description = "Primary status / placeholder web URL for MiniMe"
-  value       = "https://minime.${var.base_domain}"
+  value       = "https://${var.base_domain}"
 }
 
 output "forgejo_url" {

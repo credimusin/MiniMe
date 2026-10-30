@@ -29,6 +29,18 @@ fi
 DISK_ROOT_LINE=$(df -h / | awk 'NR==2 {print $2, $3, $4, $5}')
 DISK_ROOT_PCT=$(df / | awk 'NR==2 {print $5}' | tr -d '%')
 DISK_BOOT_LINE=$(df -h /boot 2>/dev/null | awk 'NR==2 {print $2, $3, $4, $5}' || echo "N/A")
+JOURNAL_USAGE=$(journalctl --disk-usage 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)?[KMGTP]' | head -n 1 || echo "N/A")
+
+# Ensure Podman per-container log size rotation (10 MB max per container)
+CONTAINERS_CONF_DIR="${HOME}/.config/containers"
+CONTAINERS_CONF="${CONTAINERS_CONF_DIR}/containers.conf"
+if [ ! -f "${CONTAINERS_CONF}" ] || ! grep -q "log_size_max" "${CONTAINERS_CONF}" 2>/dev/null; then
+    mkdir -p "${CONTAINERS_CONF_DIR}"
+    cat <<'EOCONF' >> "${CONTAINERS_CONF}"
+[containers]
+log_size_max = 10485760
+EOCONF
+fi
 
 FAILED_SYS=$(systemctl --failed --no-legend 2>/dev/null | wc -l)
 FAILED_USER=$(systemctl --user --failed --no-legend 2>/dev/null | wc -l)
@@ -37,7 +49,16 @@ CONTAINER_TOTAL=$(podman ps -a -q 2>/dev/null | wc -l)
 CONTAINER_RUNNING=$(podman ps -q 2>/dev/null | wc -l)
 CONTAINER_UNHEALTHY=$(podman ps -a --filter health=unhealthy -q 2>/dev/null | wc -l)
 
-JOURNAL_ERRORS=$(journalctl -p 3 -q --since "24 hours ago" --no-pager 2>/dev/null | wc -l || echo 0)
+FILTERED_ERRORS=$(journalctl -p 3 -q --since "24 hours ago" --no-pager 2>/dev/null \
+    | grep -vE '"level":"(info|warn)"|LOG:  checkpoint (starting|complete)|No such file or directory' || true)
+
+if [ -n "${FILTERED_ERRORS}" ]; then
+    JOURNAL_ERRORS=$(printf '%s\n' "${FILTERED_ERRORS}" | wc -l)
+    RECENT_ERRORS=$(printf '%s\n' "${FILTERED_ERRORS}" | tail -n 10)
+else
+    JOURNAL_ERRORS=0
+    RECENT_ERRORS=""
+fi
 
 OVERALL="HEALTHY"
 WARNINGS=()
@@ -76,6 +97,11 @@ if [ "$CONTAINER_UNHEALTHY" -gt 0 ]; then
     WARNINGS+=("Unhealthy podman containers: ${CONTAINER_UNHEALTHY}")
 fi
 
+if [ "$JOURNAL_ERRORS" -gt 0 ]; then
+    [ "$OVERALL" = "HEALTHY" ] && OVERALL="WARNING"
+    WARNINGS+=("Journal errors in last 24h: ${JOURNAL_ERRORS}")
+fi
+
 cat <<EOF
 ======================================================================
 STATION HEALTH SUMMARY: Monster (Macmini7,1)
@@ -94,11 +120,12 @@ Uptime: ${UPTIME} | Load: ${LOAD}
 [Storage]
 - Root (/): Total/Used/Avail/Use% -> ${DISK_ROOT_LINE}
 - Boot:     Total/Used/Avail/Use% -> ${DISK_BOOT_LINE}
+- Journal:  ${JOURNAL_USAGE}
 
 [Services & Containers]
 - Systemd Failed: System=${FAILED_SYS}, User=${FAILED_USER}
 - Podman:         Running=${CONTAINER_RUNNING}, Total=${CONTAINER_TOTAL}, Unhealthy=${CONTAINER_UNHEALTHY}
-- Journal Errors: ${JOURNAL_ERRORS} (priority err/crit in last 24h)
+- Journal Errors: ${JOURNAL_ERRORS} (filtered err/crit in last 24h)
 ----------------------------------------------------------------------
 EOF
 
@@ -109,5 +136,10 @@ else
     for w in "${WARNINGS[@]}"; do
         echo "  - [!] ${w}"
     done
+    if [ -n "${RECENT_ERRORS}" ]; then
+        echo ""
+        echo "Recent Error Entries (up to 10):"
+        printf '%s\n' "${RECENT_ERRORS}" | sed 's/^/  /'
+    fi
 fi
 echo "======================================================================"

@@ -69,7 +69,7 @@ resource "docker_container" "postgres" {
   remove_volumes = false
 
   entrypoint = ["/usr/local/bin/minime-postgres-entrypoint.sh"]
-  command    = ["postgres"]
+  command    = ["postgres", "-c", "log_checkpoints=off"]
 
   env = [
     "POSTGRES_USER=${var.admin_user}",

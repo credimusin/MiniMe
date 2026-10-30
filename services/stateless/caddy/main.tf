@@ -22,6 +22,10 @@ resource "docker_container" "caddy" {
   restart        = "unless-stopped"
   remove_volumes = false
 
+  env = [
+    "GODEBUG=tlsmlkem=0,tlssecpmlkem=0",
+  ]
+
   ports {
     internal = 80
     external = 80
@@ -64,7 +68,8 @@ resource "docker_container" "caddy" {
     name = var.ingress_network_name
     aliases = [
       "caddy",
-      "minime.${var.base_domain}",
+      var.base_domain,
+      "www.${var.base_domain}",
       "forgejo.${var.base_domain}",
       "innerlight.${var.base_domain}",
     ]
