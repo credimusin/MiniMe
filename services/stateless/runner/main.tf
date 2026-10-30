@@ -1,15 +1,14 @@
 locals {
   runner_config = <<-EOT
     log:
-      level: info
+      level: warn
     runner:
       file: /data/.runner
       capacity: 1
       timeout: 30m
-      insecure: true
       envs:
-        GIT_SSL_NO_VERIFY: "true"
-        NODE_TLS_REJECT_UNAUTHORIZED: "0"
+        GODEBUG: "tlsmlkem=0,tlssecpmlkem=0"
+        NODE_OPTIONS: "--import=data:text/javascript;base64,${base64encode("import tls from \"node:tls\"; tls.DEFAULT_ECDH_CURVE = \"X25519:P-256:P-384\";")}"
       labels:
         - "ubuntu-latest:docker://${var.job_image}"
     container:
@@ -60,6 +59,7 @@ resource "docker_container" "runner" {
   env = [
     "DOCKER_HOST=unix:///var/run/docker.sock",
     "FORGEJO_RUNNER_TOKEN=${var.runner_token}",
+    "GODEBUG=tlsmlkem=0,tlssecpmlkem=0",
   ]
 
   upload {
