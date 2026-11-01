@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# scripts/station-healthcheck.sh
-# Non-destructive station health inspection script for Monster (Macmini7,1)
-# Designed to be piped via SSH: ssh monster 'bash -s' < scripts/station-healthcheck.sh
-
 set -euo pipefail
 
 UPTIME=$(uptime -p 2>/dev/null || uptime)
@@ -31,7 +27,6 @@ DISK_ROOT_PCT=$(df / | awk 'NR==2 {print $5}' | tr -d '%')
 DISK_BOOT_LINE=$(df -h /boot 2>/dev/null | awk 'NR==2 {print $2, $3, $4, $5}' || echo "N/A")
 JOURNAL_USAGE=$(journalctl --disk-usage 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)?[KMGTP]' | head -n 1 || echo "N/A")
 
-# Ensure Podman per-container log size rotation (10 MB max per container)
 CONTAINERS_CONF_DIR="${HOME}/.config/containers"
 CONTAINERS_CONF="${CONTAINERS_CONF_DIR}/containers.conf"
 if [ ! -f "${CONTAINERS_CONF}" ] || ! grep -q "log_size_max" "${CONTAINERS_CONF}" 2>/dev/null; then
@@ -40,6 +35,11 @@ if [ ! -f "${CONTAINERS_CONF}" ] || ! grep -q "log_size_max" "${CONTAINERS_CONF}
 [containers]
 log_size_max = 10485760
 EOCONF
+fi
+
+TUWUNEL_MOUNT=$(podman volume inspect minime_tuwunel_data --format '{{.Mountpoint}}' 2>/dev/null || true)
+if [ -n "${TUWUNEL_MOUNT}" ] && [ -d "${TUWUNEL_MOUNT}/media" ]; then
+    find "${TUWUNEL_MOUNT}/media" -type f -size +256k -mtime +3 -delete 2>/dev/null || true
 fi
 
 FAILED_SYS=$(systemctl --failed --no-legend 2>/dev/null | wc -l)
@@ -104,7 +104,7 @@ fi
 
 cat <<EOF
 ======================================================================
-STATION HEALTH SUMMARY: Monster (Macmini7,1)
+STATION HEALTH SUMMARY: monster
 Status: [${OVERALL}]
 Timestamp: $(date -Iseconds)
 Uptime: ${UPTIME} | Load: ${LOAD}

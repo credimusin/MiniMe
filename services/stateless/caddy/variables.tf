@@ -39,3 +39,23 @@ variable "innerlight_upstream" {
   description = "Upstream address (host:port) for Inner Light landing"
   type        = string
 }
+
+variable "imaginaldev_upstream" {
+  description = "Upstream address (host:port) for ImaginalDev portfolio"
+  type        = string
+}
+
+variable "minimestatus_upstream" {
+  description = "Upstream address (host:port) for MiniMeStatus homelab showcase"
+  type        = string
+}
+
+variable "tuwunel_upstream" {
+  description = "Upstream address (host:port) for Tuwunel Matrix homeserver"
+  type        = string
+}
+
+variable "quackindex_upstream" {
+  description = "Upstream address (host:port) for QuackIndex landing and about portal"
+  type        = string
+}

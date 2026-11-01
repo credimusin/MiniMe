@@ -51,8 +51,44 @@ variable "frp_auth_token" {
   sensitive   = true
 }
 
+variable "tuwunel_registration_token" {
+  description = "Invite token required to register accounts on the Tuwunel Matrix homeserver"
+  type        = string
+  sensitive   = true
+}
+
+variable "tuwunel_admin_username" {
+  description = "Primary Matrix username granted room administration by bots"
+  type        = string
+  sensitive   = true
+}
+
 variable "innerlight_source_dir" {
   description = "Local filesystem path to the inner-light-landing repository"
   type        = string
   default     = "/var/home/bmo/Devs/inner-light-landing"
+}
+
+variable "imaginaldev_source_dir" {
+  description = "Local filesystem path to the ImaginalDev portfolio repository"
+  type        = string
+  default     = "/var/home/bmo/Devs/ImaginalDev"
+}
+
+variable "minimestatus_source_dir" {
+  description = "Local filesystem path to the MiniMeStatus homelab showcase repository"
+  type        = string
+  default     = "/var/home/bmo/Devs/MiniMeStatus"
+}
+
+variable "quackbot_source_dir" {
+  description = "Local filesystem path to the QuackBot repository"
+  type        = string
+  default     = "/var/home/bmo/Devs/QuackBot"
+}
+
+variable "quackindex_source_dir" {
+  description = "Local filesystem path to the QuackIndex repository"
+  type        = string
+  default     = "/var/home/bmo/Devs/QuackIndex"
 }

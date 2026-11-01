@@ -1,5 +1,10 @@
 output "minime_url" {
-  description = "Primary status / placeholder web URL for MiniMe"
+  description = "Public homelab showcase and status URL for MiniMe"
+  value       = "https://minime.${var.base_domain}"
+}
+
+output "imaginal_url" {
+  description = "Primary personal portfolio URL"
   value       = "https://${var.base_domain}"
 }
 
@@ -11,6 +16,11 @@ output "forgejo_url" {
 output "innerlight_url" {
   description = "Primary web URL for Inner Light landing"
   value       = "https://innerlight.${var.base_domain}"
+}
+
+output "quack_matrix_url" {
+  description = "Matrix homeserver URL for Quack (Tuwunel)"
+  value       = "https://${module.tuwunel.fqdn}"
 }
 
 output "forgejo_ssh_clone_base" {
@@ -27,5 +37,6 @@ output "stateful_volumes" {
     runner_data    = module.storage.runner_data_volume_name
     caddy_data     = module.storage.caddy_data_volume_name
     caddy_config   = module.storage.caddy_config_volume_name
+    tuwunel_data   = module.storage.tuwunel_data_volume_name
   }
 }

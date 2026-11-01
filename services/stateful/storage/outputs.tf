@@ -22,3 +22,8 @@ output "caddy_config_volume_name" {
   description = "Volume storing Caddy runtime state"
   value       = docker_volume.caddy_config.name
 }
+
+output "tuwunel_data_volume_name" {
+  description = "Volume storing Tuwunel Matrix RocksDB database and media transfer buffer"
+  value       = docker_volume.tuwunel_data.name
+}

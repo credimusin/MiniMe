@@ -1,29 +1,13 @@
-# Copy to terraform.tfvars (ignored by git)
-# Generate strong passwords via: head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n'
-
-# ==============================================================================
-# Global / Ingress
-# ==============================================================================
-# docker_host = "ssh://monster/run/user/1000/podman/podman.sock"
 base_domain  = "homelab.internal"
 tls_internal = true
 
-# ==============================================================================
-# 1. Services: Stateful (Root database & storage credentials)
-# ==============================================================================
 postgres_admin_password = "CHANGE_ME_POSTGRES_SUPERUSER_PASSWORD"
 
-# ==============================================================================
-# 2. Services: Stateless (Self-hosted infrastructure apps)
-# ==============================================================================
-forgejo_db_password  = "CHANGE_ME_FORGEJO_DB_PASSWORD"
-forgejo_runner_token = "CHANGE_ME_FORGEJO_RUNNER_TOKEN"
-forgejo_ssh_port     = 2222
-frp_vps_addr         = "CHANGE_ME_VPS_PUBLIC_IP"
-frp_auth_token       = "CHANGE_ME_FRP_SHARED_TOKEN"
+forgejo_db_password        = "CHANGE_ME_FORGEJO_DB_PASSWORD"
+forgejo_runner_token       = "CHANGE_ME_FORGEJO_RUNNER_TOKEN"
+forgejo_ssh_port           = 2222
+frp_vps_addr               = "CHANGE_ME_VPS_PUBLIC_IP"
+frp_auth_token             = "CHANGE_ME_FRP_SHARED_TOKEN"
+tuwunel_registration_token = "CHANGE_ME_MATRIX_INVITE_TOKEN"
+tuwunel_admin_username     = "CHANGE_ME_MATRIX_ADMIN_USERNAME"
 
-# ==============================================================================
-# 3. Projects (Custom pet-projects)
-# ==============================================================================
-# innerlight_source_dir       = "/var/home/bmo/Devs/inner-light-landing"
-# example_project_db_password = "CHANGE_ME_PROJECT_DB_PASSWORD"

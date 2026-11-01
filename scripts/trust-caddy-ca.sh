@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Fetches Caddy's internal Root CA from monster and imports it into local browser NSS DBs.
 set -euo pipefail
 
 TMP_CERT="$(mktemp --suffix=.crt)"

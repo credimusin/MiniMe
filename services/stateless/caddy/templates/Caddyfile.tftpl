@@ -12,8 +12,12 @@ www.${base_domain} {
 
 ${base_domain} {
 	${tls_directive}
-	root * /srv/placeholder
-	file_server
+	reverse_proxy ${imaginaldev_upstream}
+}
+
+minime.${base_domain} {
+	${tls_directive}
+	reverse_proxy ${minimestatus_upstream}
 }
 
 forgejo.${base_domain} {
@@ -24,4 +28,20 @@ forgejo.${base_domain} {
 innerlight.${base_domain} {
 	${tls_directive}
 	reverse_proxy ${innerlight_upstream}
+}
+
+quack.${base_domain} {
+	${tls_directive}
+	request_body {
+		max_size 1GB
+	}
+
+	@matrix path /_matrix/* /.well-known/matrix/*
+	handle @matrix {
+		reverse_proxy ${tuwunel_upstream}
+	}
+
+	handle {
+		reverse_proxy ${quackindex_upstream}
+	}
 }

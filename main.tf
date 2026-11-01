@@ -17,10 +17,6 @@ resource "docker_network" "backend" {
   }
 }
 
-# ==============================================================================
-# 1. SERVICES: STATEFUL (Protected persistent volumes & multi-tenant databases)
-# ==============================================================================
-
 module "storage" {
   source = "./services/stateful/storage"
 }
@@ -38,10 +34,6 @@ module "postgres" {
     }
   }
 }
-
-# ==============================================================================
-# 2. SERVICES: STATELESS (Replaceable infrastructure & self-hosted apps)
-# ==============================================================================
 
 module "forgejo" {
   source = "./services/stateless/forgejo"
@@ -71,6 +63,15 @@ module "runner" {
   data_volume_name     = module.storage.runner_data_volume_name
 }
 
+module "tuwunel" {
+  source = "./services/stateless/tuwunel"
+
+  base_domain          = var.base_domain
+  ingress_network_name = docker_network.ingress.name
+  data_volume_name     = module.storage.tuwunel_data_volume_name
+  registration_token   = var.tuwunel_registration_token
+}
+
 module "caddy" {
   source = "./services/stateless/caddy"
 
@@ -81,8 +82,12 @@ module "caddy" {
   data_volume_name   = module.storage.caddy_data_volume_name
   config_volume_name = module.storage.caddy_config_volume_name
 
-  forgejo_upstream    = "${module.forgejo.container_name}:${module.forgejo.http_port}"
-  innerlight_upstream = "${module.innerlight.container_name}:${module.innerlight.http_port}"
+  forgejo_upstream      = "${module.forgejo.container_name}:${module.forgejo.http_port}"
+  innerlight_upstream   = "${module.innerlight.container_name}:${module.innerlight.http_port}"
+  imaginaldev_upstream  = "${module.imaginaldev.container_name}:${module.imaginaldev.http_port}"
+  minimestatus_upstream = "${module.minimestatus.container_name}:${module.minimestatus.http_port}"
+  tuwunel_upstream      = "${module.tuwunel.container_name}:${module.tuwunel.http_port}"
+  quackindex_upstream   = "${module.quackindex.container_name}:${module.quackindex.http_port}"
 }
 
 module "frpc" {
@@ -96,13 +101,42 @@ module "frpc" {
   ssh_port             = var.forgejo_ssh_port
 }
 
-# ==============================================================================
-# 3. PROJECTS (Custom pet-projects consuming stateful & stateless services)
-# ==============================================================================
-
 module "innerlight" {
   source = "./projects/innerlight"
 
   ingress_network_name = docker_network.ingress.name
   source_dir           = var.innerlight_source_dir
+}
+
+module "imaginaldev" {
+  source = "./projects/imaginaldev"
+
+  ingress_network_name = docker_network.ingress.name
+  source_dir           = var.imaginaldev_source_dir
+}
+
+module "minimestatus" {
+  source = "./projects/minimestatus"
+
+  ingress_network_name = docker_network.ingress.name
+  source_dir           = var.minimestatus_source_dir
+}
+
+module "quackbot" {
+  source = "./projects/quackbot"
+
+  source_dir           = var.quackbot_source_dir
+  image_id             = module.runner.job_image_id
+  homeserver_url       = "http://${module.tuwunel.container_name}:${module.tuwunel.http_port}"
+  server_name          = module.tuwunel.fqdn
+  admin_username       = var.tuwunel_admin_username
+  registration_token   = var.tuwunel_registration_token
+  ingress_network_name = docker_network.ingress.name
+}
+
+module "quackindex" {
+  source = "./projects/quackindex"
+
+  ingress_network_name = docker_network.ingress.name
+  source_dir           = var.quackindex_source_dir
 }

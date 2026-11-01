@@ -37,3 +37,11 @@ resource "docker_volume" "caddy_config" {
     prevent_destroy = true
   }
 }
+
+resource "docker_volume" "tuwunel_data" {
+  name = "minime_tuwunel_data"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
