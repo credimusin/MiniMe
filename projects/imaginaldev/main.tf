@@ -1,19 +1,13 @@
 locals {
   http_port = 80
 
-  excluded_files = toset([
-    "README.md",
-    "AGENTS.md",
-    "KNOWN_ISSUES.md",
-    "LICENSE",
-  ])
+  public_dir = "${var.source_dir}/public"
 
-  all_files = fileexists("${var.source_dir}/index.html") ? fileset(var.source_dir, "**") : toset([])
+  all_files = fileexists("${local.public_dir}/index.html") ? fileset(local.public_dir, "**") : toset([])
 
   web_files = toset([
     for f in local.all_files : f
-    if !contains(local.excluded_files, f)
-    && !startswith(f, ".")
+    if !startswith(f, ".")
   ])
 
   nginx_site_conf = templatefile("${path.module}/templates/nginx.conf.tftpl", {
@@ -26,11 +20,38 @@ resource "docker_image" "nginx" {
   keep_locally = true
 }
 
+resource "terraform_data" "build" {
+  triggers_replace = [
+    sha256(join("", [
+      for f in try(fileset("${var.source_dir}/posts", "**"), []) : filesha256("${var.source_dir}/posts/${f}")
+    ])),
+    fileexists("${var.source_dir}/scripts/build.mjs") ? filesha256("${var.source_dir}/scripts/build.mjs") : "",
+  ]
+
+  provisioner "local-exec" {
+    command     = "node scripts/build.mjs"
+    working_dir = var.source_dir
+  }
+}
+
+resource "terraform_data" "content_hash" {
+  input = sha256(join("", [
+    for f in local.web_files : filesha256("${local.public_dir}/${f}")
+  ]))
+}
+
 resource "docker_container" "imaginaldev" {
   name           = "minime-imaginaldev"
   image          = docker_image.nginx.image_id
   restart        = "unless-stopped"
   remove_volumes = false
+
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.build,
+      terraform_data.content_hash,
+    ]
+  }
 
   upload {
     file    = "/etc/nginx/conf.d/default.conf"
@@ -40,9 +61,8 @@ resource "docker_container" "imaginaldev" {
   dynamic "upload" {
     for_each = local.web_files
     content {
-      file        = "/usr/share/nginx/html/${upload.value}"
-      source      = "${var.source_dir}/${upload.value}"
-      source_hash = filesha256("${var.source_dir}/${upload.value}")
+      file   = "/usr/share/nginx/html/${upload.value}"
+      source = "${local.public_dir}/${upload.value}"
     }
   }
 

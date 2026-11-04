@@ -26,11 +26,23 @@ resource "docker_image" "nginx" {
   keep_locally = true
 }
 
+resource "terraform_data" "content_hash" {
+  input = sha256(join("", [
+    for f in local.web_files : filesha256("${var.source_dir}/${f}")
+  ]))
+}
+
 resource "docker_container" "quackindex" {
   name           = "minime-quackindex"
   image          = docker_image.nginx.image_id
   restart        = "unless-stopped"
   remove_volumes = false
+
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.content_hash
+    ]
+  }
 
   upload {
     file    = "/etc/nginx/conf.d/default.conf"
@@ -40,9 +52,8 @@ resource "docker_container" "quackindex" {
   dynamic "upload" {
     for_each = local.web_files
     content {
-      file        = "/usr/share/nginx/html/${upload.value}"
-      source      = "${var.source_dir}/${upload.value}"
-      source_hash = filesha256("${var.source_dir}/${upload.value}")
+      file   = "/usr/share/nginx/html/${upload.value}"
+      source = "${var.source_dir}/${upload.value}"
     }
   }
 
