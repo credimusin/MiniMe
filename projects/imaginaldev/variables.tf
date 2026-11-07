@@ -1,7 +1,7 @@
 variable "image_tag" {
-  description = "Verified nginx Alpine image tag (linux/amd64)"
+  description = "Verified Node.js Alpine image tag (linux/amd64)"
   type        = string
-  default     = "1.30.6-alpine"
+  default     = "24-alpine"
 }
 
 variable "ingress_network_name" {

@@ -1,23 +1,28 @@
 locals {
   http_port = 80
 
-  public_dir = "${var.source_dir}/public"
+  posts_files   = try(fileset("${var.source_dir}/posts", "**"), [])
+  scripts_files = try(fileset("${var.source_dir}/scripts", "**"), [])
+  public_files  = try(fileset("${var.source_dir}/public", "**"), [])
 
-  all_files = fileexists("${local.public_dir}/index.html") ? fileset(local.public_dir, "**") : toset([])
-
-  web_files = toset([
-    for f in local.all_files : f
-    if !startswith(f, ".")
-  ])
-
-  nginx_site_conf = templatefile("${path.module}/templates/nginx.conf.tftpl", {
-    http_port = local.http_port
-  })
+  app_files = toset(concat(
+    [for f in local.posts_files : "posts/${f}" if !startswith(f, ".")],
+    [for f in local.scripts_files : "scripts/${f}" if !startswith(f, ".")],
+    [for f in local.public_files : "public/${f}" if !startswith(f, ".")]
+  ))
 }
 
-resource "docker_image" "nginx" {
-  name         = "docker.io/library/nginx:${var.image_tag}"
+resource "docker_image" "node" {
+  name         = "docker.io/library/node:${var.image_tag}"
   keep_locally = true
+}
+
+resource "docker_volume" "imaginaldev_data" {
+  name = "minime_imaginaldev_data"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "terraform_data" "build" {
@@ -36,15 +41,22 @@ resource "terraform_data" "build" {
 
 resource "terraform_data" "content_hash" {
   input = sha256(join("", [
-    for f in local.web_files : filesha256("${local.public_dir}/${f}")
+    for f in local.app_files : filesha256("${var.source_dir}/${f}")
   ]))
 }
 
 resource "docker_container" "imaginaldev" {
   name           = "minime-imaginaldev"
-  image          = docker_image.nginx.image_id
+  image          = docker_image.node.image_id
   restart        = "unless-stopped"
   remove_volumes = false
+  working_dir    = "/app"
+  command        = ["node", "scripts/server.mjs"]
+
+  env = [
+    "PORT=${local.http_port}",
+    "NODE_ENV=production",
+  ]
 
   lifecycle {
     replace_triggered_by = [
@@ -53,16 +65,16 @@ resource "docker_container" "imaginaldev" {
     ]
   }
 
-  upload {
-    file    = "/etc/nginx/conf.d/default.conf"
-    content = local.nginx_site_conf
+  volumes {
+    volume_name    = docker_volume.imaginaldev_data.name
+    container_path = "/app/data"
   }
 
   dynamic "upload" {
-    for_each = local.web_files
+    for_each = local.app_files
     content {
-      file   = "/usr/share/nginx/html/${upload.value}"
-      source = "${local.public_dir}/${upload.value}"
+      file   = "/app/${upload.value}"
+      source = "${var.source_dir}/${upload.value}"
     }
   }
 
