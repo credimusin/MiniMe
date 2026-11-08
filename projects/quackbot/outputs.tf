@@ -7,3 +7,8 @@ output "room_alias" {
   description = "Public Matrix channel alias for HackerNews"
   value       = "#hackernews:${var.server_name}"
 }
+
+output "memes_room_alias" {
+  description = "Public Matrix channel alias for Memes"
+  value       = "#memes:${var.server_name}"
+}
