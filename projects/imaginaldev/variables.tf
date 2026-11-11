@@ -1,7 +1,7 @@
 variable "image_tag" {
-  description = "Verified Node.js Alpine image tag (linux/amd64)"
+  description = "Verified nginx Alpine image tag (linux/amd64)"
   type        = string
-  default     = "24-alpine"
+  default     = "1.30.6-alpine"
 }
 
 variable "ingress_network_name" {
@@ -10,7 +10,7 @@ variable "ingress_network_name" {
 }
 
 variable "source_dir" {
-  description = "Local path to the ImaginalDev portfolio repository"
+  description = "Local path to the ImaginalDev placeholder repository"
   type        = string
   default     = "/var/home/bmo/Devs/ImaginalDev"
 }

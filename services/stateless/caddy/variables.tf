@@ -45,6 +45,11 @@ variable "imaginaldev_upstream" {
   type        = string
 }
 
+variable "bmoblog_upstream" {
+  description = "Upstream address (host:port) for bmoBlog"
+  type        = string
+}
+
 variable "minimestatus_upstream" {
   description = "Upstream address (host:port) for MiniMeStatus homelab showcase"
   type        = string

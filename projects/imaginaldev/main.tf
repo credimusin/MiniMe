@@ -1,79 +1,59 @@
 locals {
   http_port = 80
 
-  posts_files   = try(fileset("${var.source_dir}/posts", "**"), [])
-  scripts_files = try(fileset("${var.source_dir}/scripts", "**"), [])
-  public_files  = try(fileset("${var.source_dir}/public", "**"), [])
+  excluded_files = toset([
+    "README.md",
+    "AGENTS.md",
+    "KNOWN_ISSUES.md",
+    "LICENSE",
+    ".gitignore",
+  ])
 
-  app_files = toset(concat(
-    [for f in local.posts_files : "posts/${f}" if !startswith(f, ".")],
-    [for f in local.scripts_files : "scripts/${f}" if !startswith(f, ".")],
-    [for f in local.public_files : "public/${f}" if !startswith(f, ".")]
-  ))
+  all_files = fileexists("${var.source_dir}/index.html") ? fileset(var.source_dir, "**") : toset([])
+
+  web_files = toset([
+    for f in local.all_files : f
+    if !contains(local.excluded_files, f)
+    && !startswith(f, ".")
+  ])
+
+  nginx_site_conf = templatefile("${path.module}/templates/nginx.conf.tftpl", {
+    http_port = local.http_port
+  })
 }
 
-resource "docker_image" "node" {
-  name         = "docker.io/library/node:${var.image_tag}"
+resource "docker_image" "nginx" {
+  name         = "docker.io/library/nginx:${var.image_tag}"
   keep_locally = true
 }
 
-resource "docker_volume" "imaginaldev_data" {
-  name = "minime_imaginaldev_data"
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "terraform_data" "build" {
-  triggers_replace = [
-    sha256(join("", [
-      for f in try(fileset("${var.source_dir}/posts", "**"), []) : filesha256("${var.source_dir}/posts/${f}")
-    ])),
-    fileexists("${var.source_dir}/scripts/build.mjs") ? filesha256("${var.source_dir}/scripts/build.mjs") : "",
-  ]
-
-  provisioner "local-exec" {
-    command     = "node scripts/build.mjs"
-    working_dir = var.source_dir
-  }
-}
-
-resource "terraform_data" "content_hash" {
+resource "terraform_data" "landing_hash" {
   input = sha256(join("", [
-    for f in local.app_files : filesha256("${var.source_dir}/${f}")
+    for f in local.web_files : filesha256("${var.source_dir}/${f}")
   ]))
 }
 
-resource "docker_container" "imaginaldev" {
+resource "docker_container" "landing" {
   name           = "minime-imaginaldev"
-  image          = docker_image.node.image_id
+  image          = docker_image.nginx.image_id
   restart        = "unless-stopped"
   remove_volumes = false
-  working_dir    = "/app"
-  command        = ["node", "scripts/server.mjs"]
-
-  env = [
-    "PORT=${local.http_port}",
-    "NODE_ENV=production",
-  ]
 
   lifecycle {
     replace_triggered_by = [
-      terraform_data.build,
-      terraform_data.content_hash,
+      terraform_data.landing_hash
     ]
   }
 
-  volumes {
-    volume_name    = docker_volume.imaginaldev_data.name
-    container_path = "/app/data"
+  upload {
+    file    = "/etc/nginx/conf.d/default.conf"
+    content = local.nginx_site_conf
   }
 
   dynamic "upload" {
-    for_each = local.app_files
+    for_each = local.web_files
     content {
-      file   = "/app/${upload.value}"
+      file   = "/usr/share/nginx/html/${upload.value}"
       source = "${var.source_dir}/${upload.value}"
     }
   }

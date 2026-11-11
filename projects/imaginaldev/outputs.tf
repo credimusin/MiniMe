@@ -1,6 +1,6 @@
 output "container_name" {
   description = "ImaginalDev container hostname"
-  value       = docker_container.imaginaldev.name
+  value       = docker_container.landing.name
 }
 
 output "http_port" {

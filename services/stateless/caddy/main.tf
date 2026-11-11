@@ -7,6 +7,7 @@ locals {
     forgejo_upstream      = var.forgejo_upstream
     innerlight_upstream   = var.innerlight_upstream
     imaginaldev_upstream  = var.imaginaldev_upstream
+    bmoblog_upstream      = var.bmoblog_upstream
     minimestatus_upstream = var.minimestatus_upstream
     tuwunel_upstream      = var.tuwunel_upstream
     quackindex_upstream   = var.quackindex_upstream

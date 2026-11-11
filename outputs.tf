@@ -4,8 +4,13 @@ output "minime_url" {
 }
 
 output "imaginal_url" {
-  description = "Primary personal portfolio URL"
+  description = "Primary ImaginalDev landing page URL"
   value       = "https://${var.base_domain}"
+}
+
+output "bmoblog_url" {
+  description = "Personal blog and portfolio URL for bmoBlog"
+  value       = "https://bmo.${var.base_domain}"
 }
 
 output "forgejo_url" {

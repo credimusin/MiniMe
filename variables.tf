@@ -70,9 +70,15 @@ variable "innerlight_source_dir" {
 }
 
 variable "imaginaldev_source_dir" {
-  description = "Local filesystem path to the ImaginalDev portfolio repository"
+  description = "Local filesystem path to the ImaginalDev placeholder repository"
   type        = string
   default     = "/var/home/bmo/Devs/ImaginalDev"
+}
+
+variable "bmoblog_source_dir" {
+  description = "Local filesystem path to the bmoBlog repository"
+  type        = string
+  default     = "/var/home/bmo/Devs/bmoBlog"
 }
 
 variable "minimestatus_source_dir" {

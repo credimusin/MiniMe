@@ -15,6 +15,11 @@ ${base_domain} {
 	reverse_proxy ${imaginaldev_upstream}
 }
 
+bmo.${base_domain} {
+	${tls_directive}
+	reverse_proxy ${bmoblog_upstream}
+}
+
 minime.${base_domain} {
 	${tls_directive}
 	reverse_proxy ${minimestatus_upstream}

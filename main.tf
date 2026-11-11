@@ -85,6 +85,7 @@ module "caddy" {
   forgejo_upstream      = "${module.forgejo.container_name}:${module.forgejo.http_port}"
   innerlight_upstream   = "${module.innerlight.container_name}:${module.innerlight.http_port}"
   imaginaldev_upstream  = "${module.imaginaldev.container_name}:${module.imaginaldev.http_port}"
+  bmoblog_upstream      = "${module.bmoblog.container_name}:${module.bmoblog.http_port}"
   minimestatus_upstream = "${module.minimestatus.container_name}:${module.minimestatus.http_port}"
   tuwunel_upstream      = "${module.tuwunel.container_name}:${module.tuwunel.http_port}"
   quackindex_upstream   = "${module.quackindex.container_name}:${module.quackindex.http_port}"
@@ -113,6 +114,38 @@ module "imaginaldev" {
 
   ingress_network_name = docker_network.ingress.name
   source_dir           = var.imaginaldev_source_dir
+}
+
+module "bmoblog" {
+  source = "./projects/bmoblog"
+
+  ingress_network_name = docker_network.ingress.name
+  source_dir           = var.bmoblog_source_dir
+}
+
+moved {
+  from = module.imaginaldev.docker_volume.imaginaldev_data
+  to   = module.bmoblog.docker_volume.bmoblog_data
+}
+
+moved {
+  from = module.imaginaldev.docker_container.imaginaldev
+  to   = module.bmoblog.docker_container.bmoblog
+}
+
+moved {
+  from = module.imaginaldev.docker_image.node
+  to   = module.bmoblog.docker_image.node
+}
+
+moved {
+  from = module.imaginaldev.terraform_data.build
+  to   = module.bmoblog.terraform_data.build
+}
+
+moved {
+  from = module.imaginaldev.terraform_data.content_hash
+  to   = module.bmoblog.terraform_data.content_hash
 }
 
 module "minimestatus" {
